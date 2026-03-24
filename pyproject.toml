@@ -8,6 +8,10 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.1",
+    "requests>=2.32.5",
+    "ruff>=0.12.10",
     "workers-py",
-    "workers-runtime-sdk"
+    "workers-runtime-sdk",
 ]
