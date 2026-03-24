@@ -77,7 +77,8 @@ def dev_server(request):
 
     test_name = request.node.name
     # Extract directory name from test name (e.g., "test_01_hello" -> "01-hello")
-    dir_name = test_name.replace("test_", "").replace("_", "-")
+    # dir_name = test_name.replace("test_", "").replace("_", "-")
+    dir_name = "src"
 
     with pywrangler_dev_server(dir_name) as port:
         yield port
