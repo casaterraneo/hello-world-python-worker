@@ -18,5 +18,8 @@
       "binding": "KV_BINDING",
       "id": "024cb8ce59f8466daef9e7c5d6058a4e"
     }
-  ]    
+  ],
+  "ai": {
+    "binding": "AI"
+  }  
 }
