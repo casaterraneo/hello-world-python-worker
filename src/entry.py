@@ -35,13 +35,12 @@ async def test_depends_async(key: str = Depends(verify_secret_async)):
 async def test_ai(request: Request):
     env = request.scope["env"]
     response = await env.AI.run(
-        "@cf/openai/gpt-oss-120b",
+        "@cf/meta/llama-3.1-8b-instruct", 
         {
-            "instructions": "You are a concise assistant.",
-            "input": "What is the origin of the phrase 'The King is dead, long live the King!'?",
+            "prompt": "What is the origin of the phrase Hello, World"
         },
     )
-    return {"output": response.output}    
+    return {"output": response}    
     
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
