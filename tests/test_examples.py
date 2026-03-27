@@ -12,4 +12,4 @@ def test_hello(dev_server):
         response.text
         == '{"message":"Hello world TEST! Version: 0.1.1 baz"}'
     )        
-    assert response.headers["content-type"] == "text/plain;charset=UTF-8"
+    assert response.headers["content-type"] == "application/json"
