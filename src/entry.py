@@ -4,11 +4,12 @@ from workers import WorkerEntrypoint, Response
 app = FastAPI()
 
 @app.get("/")
-async def root():
-    await self.env.KV_BINDING.put("bar", "baz")
-    bar = await self.env.KV_BINDING.get("bar")
-    # return Response(f"Hello world TEST! Version: {self.env.APP_VERSION} {bar}")
-    message = f"Hello world TEST! Version: {self.env.APP_VERSION} {bar}"
+async def root(request: Request):
+    env = request.scope["env"]        
+    await env.KV_BINDING.put("bar", "baz")
+    bar = await env.KV_BINDING.get("bar")
+    # return Response(f"Hello world TEST! Version: {env.APP_VERSION} {bar}")
+    message = f"Hello world TEST! Version: {env.APP_VERSION} {bar}"
     return {message}
 
 class Default(WorkerEntrypoint):
