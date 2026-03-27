@@ -13,9 +13,6 @@
   "vars": {
     "APP_VERSION": "0.1.1"
   },
-	"ai": {
-    "binding": "AI"
-  },  
   "kv_namespaces": [
     {
       "binding": "KV_BINDING",
