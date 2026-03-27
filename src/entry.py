@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, HTTPException
 from workers import WorkerEntrypoint, Response
 from fastapi.security import APIKeyHeader
 
@@ -39,7 +39,8 @@ async def verify_secret_async(key: str = Depends(api_key_header)):
 @app.get("/test-depends-async")
 async def test_depends_async(key: str = Depends(verify_secret_async)):
     if not key:
-        return {"error": "Unauthorized"}
+        raise HTTPException(status_code=401, detail="Unauthorized")
+        #return {"error": "Unauthorized"}
     return {"auth": "ok", "method": "Depends asincrona"}
 
 class Default(WorkerEntrypoint):
