@@ -4,9 +4,13 @@
 	"main": "src/entry.py",
 	"compatibility_date": "2026-03-24",
 	"compatibility_flags": [
-		"python_workers"
+		"python_workers",
+		"python_dedicated_snapshot"
 	],
 	"observability": {
 		"enabled": true
-	}
+	},
+	"vars": {
+    	"APP_VERSION": "0.1.0"
+  	}
 }
