@@ -10,7 +10,7 @@ async def root(request: Request):
     bar = await env.KV_BINDING.get("bar")
     # return Response(f"Hello world TEST! Version: {env.APP_VERSION} {bar}")
     message = f"Hello world TEST! Version: {env.APP_VERSION} {bar}"
-    return {message}
+    return {"message": message}
 
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
