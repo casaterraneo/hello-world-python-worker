@@ -1,0 +1,45 @@
+name: Bump and Push Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Nuova versione (es. 0.1.1)'
+        required: true
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Obbligatorio per permettere alla Action di fare il push
+
+    steps:
+      - name: Checkout del codice
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Carica tutta la cronologia per gestire meglio i tag
+
+      - name: Setup Git
+        run: |
+          git config user.name 'casaterraneo'
+          git config user.email 'casaterraneo@gmail.com'
+
+      - name: Bump version
+        id: bump
+        run: |
+          NEW_VER="${{ github.event.inputs.version }}"
+          
+          # Aggiorna il valore APP_VERSION dentro il file wrangler.jsonc
+          jq --arg v "$NEW_VER" '.vars.APP_VERSION = $v' wrangler.jsonc > temp.json && mv temp.json wrangler.jsonc
+          
+          # Crea commit e tag
+          git add wrangler.jsonc
+          git commit -m "chore: bump version to $NEW_VER"
+          git tag "v$NEW_VER"
+          
+          echo "version=$NEW_VER" >> $GITHUB_OUTPUT
+
+      - name: Push latest version
+        run: |
+          # Spinge il commit e il nuovo tag sul branch corrente
+          git push origin ${{ github.ref_name }} --follow-tags
