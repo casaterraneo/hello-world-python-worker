@@ -3,4 +3,6 @@ from workers import WorkerEntrypoint, Response
 
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
-        return Response(f"Hello world TEST! Version: {self.env.APP_VERSION}")
+        await self.env.FOO.put("bar", "baz")
+        bar = await self.env.FOO.get("bar")
+        return Response(f"Hello world TEST! Version: {self.env.APP_VERSION} {bar}")

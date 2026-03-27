@@ -6,11 +6,17 @@
   "compatibility_flags": [
     "python_workers",
     "python_dedicated_snapshot"
-  ],
+  ],  
   "observability": {
     "enabled": true
   },
   "vars": {
     "APP_VERSION": "0.1.1"
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "KV_BINDING",
+      "id": "024cb8ce59f8466daef9e7c5d6058a4e"
+    }
+  ]    
 }
