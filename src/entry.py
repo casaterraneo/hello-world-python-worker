@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Depends, HTTPException, status
 from workers import WorkerEntrypoint, Response
 from fastapi.security import APIKeyHeader
+from pyodide.ffi import to_py
 
 HARDCODED_SECRET = "test-secret-1234"
 
@@ -40,7 +41,7 @@ async def test_ai(request: Request):
             "prompt": "What is the origin of the phrase Hello, World"
         },
     )
-    return {"output": response}    
+    return {"output": to_py(response)}    
     
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
