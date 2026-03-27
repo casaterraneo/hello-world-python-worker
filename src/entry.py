@@ -31,17 +31,17 @@ async def verify_secret_async(key: str = Depends(api_key_header)):
 async def test_depends_async(key: str = Depends(verify_secret_async)):
     return {"auth": "ok", "method": "Depends asincrona"}
 
-# @app.get("/test-ai")
-# async def fetch(self, request):
-#     env = request.scope["env"]
-#     response = await env.AI.run(
-#         "@cf/openai/gpt-oss-120b",
-#         {
-#             "instructions": "You are a concise assistant.",
-#             "input": "What is the origin of the phrase 'The King is dead, long live the King!'?",
-#         },
-#     )
-#     return {"output": response.output}    
+@app.get("/test-ai")
+async def fetch(self, request):
+    env = request.scope["env"]
+    response = await env.AI.run(
+        "@cf/openai/gpt-oss-120b",
+        {
+            "instructions": "You are a concise assistant.",
+            "input": "What is the origin of the phrase 'The King is dead, long live the King!'?",
+        },
+    )
+    return {"output": response.output}    
     
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
