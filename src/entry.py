@@ -42,6 +42,18 @@ async def test_depends_sync(key: str = Depends(verify_secret_sync)):
         return {"error": "Unauthorized"}
     return {"auth": "ok", "method": "Depends sincrona"}
 
+# Depends ASYNC — dovrebbe funzionare
+async def verify_secret_async(key: str = Depends(api_key_header)):
+    if key != HARDCODED_SECRET:
+        return None
+    return key
+
+@app.get("/test-depends-async")
+async def test_depends_async(key: str = Depends(verify_secret_async)):
+    if not key:
+        return {"error": "Unauthorized"}
+    return {"auth": "ok", "method": "Depends asincrona"}
+
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
         import asgi
