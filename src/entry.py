@@ -32,7 +32,7 @@ async def test_depends_async(key: str = Depends(verify_secret_async)):
     return {"auth": "ok", "method": "Depends asincrona"}
 
 @app.get("/test-ai")
-async def fetch(self, request):
+async def test_ai(request: Request):
     env = request.scope["env"]
     response = await env.AI.run(
         "@cf/openai/gpt-oss-120b",
