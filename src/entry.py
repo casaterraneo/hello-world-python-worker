@@ -1,53 +1,25 @@
-from fastapi import FastAPI, Request, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
-from workers import WorkerEntrypoint, Response
-from fastapi.security import APIKeyHeader
-from pydantic import BaseModel
-import numpy as np
+import json
 import base64
 import io
+from urllib.parse import urlparse
+import numpy as np
+from workers import WorkerEntrypoint, Response
 
 HARDCODED_SECRET = "test-secret-1234"
 
-app = FastAPI(title="Hello World Python Worker")
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-@app.get("/")
-async def root(request: Request):
-    env = request.scope["env"]
-    await env.KV_BINDING.put("bar", "baz")
-    bar = await env.KV_BINDING.get("bar")
-    # return Response(f"Hello world TEST! Version: {env.APP_VERSION} {bar}")
-    message = f"Hello world TEST! Version: {env.APP_VERSION} {bar}"
-    return {"message": message}
+def _json_resp(data, status=200):
+    return Response(
+        json.dumps(data, separators=(",", ":")),
+        status=status,
+        headers={"Content-Type": "application/json"},
+    )
 
-api_key_header = APIKeyHeader(name="X-Internal-Secret", auto_error=False)
-
-# Depends ASYNC
-async def verify_secret_async(key: str = Depends(api_key_header)):
-    if key != HARDCODED_SECRET:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Unauthorized", 
-            headers={"WWW-Authenticate": "API Key"}
-        ) 
-    return key
-
-@app.get("/test-depends-async")
-async def test_depends_async(key: str = Depends(verify_secret_async)):
-    return {"auth": "ok", "method": "Depends asincrona"}
-
-# @app.get("/test-ai")
-# async def test_ai(request: Request):
-#     env = request.scope["env"]
-#     response = await env.AI.run(
-#         "@cf/meta/llama-3.1-8b-instruct", 
-#         {
-#             "prompt": "What is the origin of the phrase Hello, World"
-#         },
-#     )
-#     result = response.to_py()
-#     return {"output": result}
-
+def _error(msg, status=400):
+    return _json_resp({"detail": msg}, status=status)
 
 # ---------------------------------------------------------------------------
 # Tris — inferenza NumPy (pesi estratti da model.pt via export_weights.py)
@@ -63,7 +35,7 @@ def _get_tris_weights():
         _tris_weights = np.load(buf)
     return _tris_weights
 
-def _tris_forward(board: list) -> int:
+def _tris_forward(board):
     w = _get_tris_weights()
     x = np.array(board, dtype=np.float32)
     x = np.maximum(0.0, x @ w["w0"].T + w["b0"])
@@ -75,20 +47,42 @@ def _tris_forward(board: list) -> int:
         raise ValueError("Nessuna mossa legale disponibile")
     return int(max(legal, key=lambda i: float(q[i])))
 
-class TrisRequest(BaseModel):
-    board: list[float]
+# ---------------------------------------------------------------------------
+# Worker entrypoint — routing nativo senza FastAPI
+# ---------------------------------------------------------------------------
 
-@app.post("/tris/move")
-async def tris_move(body: TrisRequest):
-    if len(body.board) != 9:
-        raise HTTPException(status_code=400, detail="board deve avere esattamente 9 valori")
-    for v in body.board:
-        if v not in (0.0, 1.0, -1.0):
-            raise HTTPException(status_code=400, detail="I valori del board devono essere 0, 1 o -1")
-    move = _tris_forward(body.board)
-    return {"move": move}
-    
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
-        import asgi
-        return await asgi.fetch(app, request.js_object, self.env)
+        path = urlparse(str(request.url)).path
+        method = str(request.method)
+
+        # GET /
+        if method == "GET" and path == "/":
+            await self.env.KV_BINDING.put("bar", "baz")
+            bar = await self.env.KV_BINDING.get("bar")
+            message = f"Hello world TEST! Version: {self.env.APP_VERSION} {bar}"
+            return _json_resp({"message": message})
+
+        # GET /test-depends-async
+        if method == "GET" and path == "/test-depends-async":
+            key = request.headers.get("x-internal-secret")
+            if key != HARDCODED_SECRET:
+                return _error("Unauthorized", status=401)
+            return _json_resp({"auth": "ok", "method": "Depends asincrona"})
+
+        # POST /tris/move
+        if method == "POST" and path == "/tris/move":
+            try:
+                body = json.loads(await request.text())
+            except Exception:
+                return _error("JSON non valido")
+            board = body.get("board") if isinstance(body, dict) else None
+            if not isinstance(board, list) or len(board) != 9:
+                return _error("board deve avere esattamente 9 valori")
+            for v in board:
+                if v not in (0, 1, -1, 0.0, 1.0, -1.0):
+                    return _error("I valori del board devono essere 0, 1 o -1")
+            move = _tris_forward(board)
+            return _json_resp({"move": move})
+
+        return _error("Not found", status=404)
