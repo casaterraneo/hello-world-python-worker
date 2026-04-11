@@ -1,0 +1,54 @@
+### GET / - Hello World
+GET https://hello-python.casa-terraneo.workers.dev/
+
+###
+
+### GET /test-depends-async - Auth OK
+GET https://hello-python.casa-terraneo.workers.dev/test-depends-async
+X-Internal-Secret: test-secret-1234
+
+###
+
+### GET /test-depends-async - Auth FAIL (401)
+GET https://hello-python.casa-terraneo.workers.dev/test-depends-async
+X-Internal-Secret: wrong-secret
+
+###
+
+### POST /tris/move - Board vuoto (atteso: centro = 4)
+POST https://hello-python.casa-terraneo.workers.dev/tris/move
+Content-Type: application/json
+
+{"board": [0,0,0,0,0,0,0,0,0]}
+
+###
+
+### POST /tris/move - X ha centro, O deve difendere
+POST https://hello-python.casa-terraneo.workers.dev/tris/move
+Content-Type: application/json
+
+{"board": [0,0,0,0,1,0,0,0,0]}
+
+###
+
+### POST /tris/move - Board quasi pieno
+POST https://hello-python.casa-terraneo.workers.dev/tris/move
+Content-Type: application/json
+
+{"board": [1,-1,1,-1,1,-1,-1,0,0]}
+
+###
+
+### POST /tris/move - Validazione: board troppo corto (400)
+POST https://hello-python.casa-terraneo.workers.dev/tris/move
+Content-Type: application/json
+
+{"board": [0,1,0]}
+
+###
+
+### POST /tris/move - Validazione: valore non valido (400)
+POST https://hello-python.casa-terraneo.workers.dev/tris/move
+Content-Type: application/json
+
+{"board": [0,0,0,0,2,0,0,0,0]}
