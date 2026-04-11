@@ -1,8 +1,7 @@
 import json
 import base64
-import io
+import struct
 from urllib.parse import urlparse
-import numpy as np
 from workers import WorkerEntrypoint, Response
 
 HARDCODED_SECRET = "test-secret-1234"
@@ -22,30 +21,52 @@ def _error(msg, status=400):
     return _json_resp({"detail": msg}, status=status)
 
 # ---------------------------------------------------------------------------
-# Tris — inferenza NumPy (pesi estratti da model.pt via export_weights.py)
+# Tris — inferenza pure Python (pesi estratti da model.pt via export_weights.py)
+# Nessuna dipendenza da numpy: usa solo struct (stdlib)
 # ---------------------------------------------------------------------------
 
 _tris_weights = None
+
+# Shapes: w0(256x9) b0(256) w2(256x256) b2(256) w4(256x256) b4(256) w6(9x256) b6(9)
+_W_SHAPES = [(256, 9), (256,), (256, 256), (256,), (256, 256), (256,), (9, 256), (9,)]
+_W_NAMES  = ["w0", "b0", "w2", "b2", "w4", "b4", "w6", "b6"]
 
 def _get_tris_weights():
     global _tris_weights
     if _tris_weights is None:
         from tris_weights import WEIGHTS_B64
-        buf = io.BytesIO(base64.b64decode(WEIGHTS_B64))
-        _tris_weights = np.load(buf)
+        raw = base64.b64decode(WEIGHTS_B64)
+        all_floats = struct.unpack(f"{len(raw)//4}f", raw)
+        offset = 0
+        weights = {}
+        for name, shape in zip(_W_NAMES, _W_SHAPES):
+            n = 1
+            for s in shape:
+                n *= s
+            weights[name] = list(all_floats[offset:offset + n])
+            offset += n
+        _tris_weights = weights
     return _tris_weights
+
+def _linear_relu(W, b, x, out_f, in_f):
+    return [max(0.0, sum(W[i * in_f + j] * x[j] for j in range(in_f)) + b[i])
+            for i in range(out_f)]
+
+def _linear(W, b, x, out_f, in_f):
+    return [sum(W[i * in_f + j] * x[j] for j in range(in_f)) + b[i]
+            for i in range(out_f)]
 
 def _tris_forward(board):
     w = _get_tris_weights()
-    x = np.array(board, dtype=np.float32)
-    x = np.maximum(0.0, x @ w["w0"].T + w["b0"])
-    x = np.maximum(0.0, x @ w["w2"].T + w["b2"])
-    x = np.maximum(0.0, x @ w["w4"].T + w["b4"])
-    q = x @ w["w6"].T + w["b6"]
+    x = [float(v) for v in board]
+    x = _linear_relu(w["w0"], w["b0"], x, 256, 9)
+    x = _linear_relu(w["w2"], w["b2"], x, 256, 256)
+    x = _linear_relu(w["w4"], w["b4"], x, 256, 256)
+    q = _linear(w["w6"], w["b6"], x, 9, 256)
     legal = [i for i, v in enumerate(board) if v == 0]
     if not legal:
         raise ValueError("Nessuna mossa legale disponibile")
-    return int(max(legal, key=lambda i: float(q[i])))
+    return max(legal, key=lambda i: q[i])
 
 # ---------------------------------------------------------------------------
 # Worker entrypoint — routing nativo senza FastAPI
