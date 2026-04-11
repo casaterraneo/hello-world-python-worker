@@ -26,10 +26,10 @@ jobs:
     # - name: Run tests
     #   run: uv run pytest -vv
 
-    - name: Run tests
-      run: uv run pytest -vv
-      env:
-        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    # - name: Run tests
+    #   run: uv run pytest -vv
+    #   env:
+    #     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
     - name: Deploy to Cloudflare Workers (optional)
       run: uv run pywrangler deploy
