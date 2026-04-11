@@ -25,12 +25,16 @@ def pywrangler_dev_server(directory: str):
     """Context manager to start and stop pywrangler dev server."""
     port = find_free_port()
 
+    env = os.environ.copy()
+    env.setdefault("CLOUDFLARE_API_TOKEN", "local-dev-token")
+
     process = subprocess.Popen(
         ["uv", "run", "pywrangler", "dev", "--port", str(port)],
         cwd=REPO_ROOT / directory,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        env=env,
     )
 
     # Wait for server to be ready
