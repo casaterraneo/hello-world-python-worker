@@ -36,17 +36,17 @@ async def verify_secret_async(key: str = Depends(api_key_header)):
 async def test_depends_async(key: str = Depends(verify_secret_async)):
     return {"auth": "ok", "method": "Depends asincrona"}
 
-@app.get("/test-ai")
-async def test_ai(request: Request):
-    env = request.scope["env"]
-    response = await env.AI.run(
-        "@cf/meta/llama-3.1-8b-instruct", 
-        {
-            "prompt": "What is the origin of the phrase Hello, World"
-        },
-    )
-    result = response.to_py()
-    return {"output": result}
+# @app.get("/test-ai")
+# async def test_ai(request: Request):
+#     env = request.scope["env"]
+#     response = await env.AI.run(
+#         "@cf/meta/llama-3.1-8b-instruct", 
+#         {
+#             "prompt": "What is the origin of the phrase Hello, World"
+#         },
+#     )
+#     result = response.to_py()
+#     return {"output": result}
 
 
 # ---------------------------------------------------------------------------
