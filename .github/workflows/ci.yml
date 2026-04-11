@@ -23,8 +23,8 @@ jobs:
         uv sync --dev
         uv run pywrangler dev --help
 
-    # - name: Run tests
-    #   run: uv run pytest -vv
+    - name: Run tests
+      run: uv run pytest -vv
 
     - name: Deploy to Cloudflare Workers (optional)
       run: uv run pywrangler deploy
