@@ -52,3 +52,98 @@ POST https://hello-python.casa-terraneo.workers.dev/tris/move
 Content-Type: application/json
 
 {"board": [0,0,0,0,2,0,0,0,0]}
+
+###
+
+### POST /briscola/encode - Ottieni i 28 float dell'osservazione
+POST https://hello-python.casa-terraneo.workers.dev/briscola/encode
+Content-Type: application/json
+
+{
+  "hand": [
+    {"suit": "bastoni", "rank": 1},
+    {"suit": "coppe",   "rank": 7},
+    {"suit": "spade",   "rank": 3}
+  ],
+  "table": null,
+  "briscola": {"suit": "denari", "rank": 10},
+  "deck_left": 30,
+  "my_score": 0,
+  "opp_score": 0
+}
+
+###
+
+### POST /briscola/move - Mossa AI (board vuoto, agente va per primo)
+POST https://hello-python.casa-terraneo.workers.dev/briscola/move
+Content-Type: application/json
+
+{
+  "hand": [
+    {"suit": "bastoni", "rank": 1},
+    {"suit": "coppe",   "rank": 7},
+    {"suit": "spade",   "rank": 3}
+  ],
+  "table": null,
+  "briscola": {"suit": "denari", "rank": 10},
+  "deck_left": 30,
+  "my_score": 0,
+  "opp_score": 0,
+  "n_cards": 3
+}
+
+###
+
+### POST /briscola/move - C'e' una carta sul tavolo
+POST https://hello-python.casa-terraneo.workers.dev/briscola/move
+Content-Type: application/json
+
+{
+  "hand": [
+    {"suit": "bastoni", "rank": 1},
+    {"suit": "coppe",   "rank": 7},
+    {"suit": "spade",   "rank": 3}
+  ],
+  "table": {"suit": "denari", "rank": 5},
+  "briscola": {"suit": "denari", "rank": 10},
+  "deck_left": 20,
+  "my_score": 15,
+  "opp_score": 22,
+  "n_cards": 3
+}
+
+###
+
+### POST /briscola/move - Fine partita, solo 1 carta in mano
+POST https://hello-python.casa-terraneo.workers.dev/briscola/move
+Content-Type: application/json
+
+{
+  "hand": [
+    {"suit": "bastoni", "rank": 4}
+  ],
+  "table": {"suit": "coppe", "rank": 9},
+  "briscola": {"suit": "denari", "rank": 10},
+  "deck_left": 0,
+  "my_score": 55,
+  "opp_score": 60,
+  "n_cards": 1
+}
+
+###
+
+### POST /briscola/move - Validazione: suit non valida (400)
+POST https://hello-python.casa-terraneo.workers.dev/briscola/move
+Content-Type: application/json
+
+{
+  "hand": [
+    {"suit": "cuori", "rank": 1}
+  ],
+  "table": null,
+  "briscola": {"suit": "denari", "rank": 10},
+  "deck_left": 30,
+  "my_score": 0,
+  "opp_score": 0
+}
+
