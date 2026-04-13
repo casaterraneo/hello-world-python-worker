@@ -75,7 +75,8 @@ def _tris_forward(board):
 _SUITS       = ["bastoni", "coppe", "denari", "spade"]
 _POINTS      = {1: 11, 3: 10, 10: 4, 9: 3, 8: 2}
 _BRISCOLA_W  = None
-_B_SHAPES    = [(256, 28), (256,), (256, 256), (256,), (256, 256), (256,), (3, 256), (3,)]
+_B_NAMES     = ["w0", "b0", "w2", "b2", "w4", "b4"]
+_B_SHAPES    = [(256, 31), (256,), (256, 256), (256,), (3, 256), (3,)]
 
 def _get_briscola_weights():
     global _BRISCOLA_W
@@ -85,7 +86,7 @@ def _get_briscola_weights():
         all_floats = struct.unpack(f"{len(raw)//4}f", raw)
         offset = 0
         weights = {}
-        for name, shape in zip(_W_NAMES, _B_SHAPES):
+        for name, shape in zip(_B_NAMES, _B_SHAPES):
             n = 1
             for s in shape:
                 n *= s
@@ -154,15 +155,38 @@ def _briscola_encode(body):
     obs.append(float(my_score)  / 120.0)
     obs.append(float(opp_score) / 120.0)
 
+    # batte_tavolo: 3 flag, uno per carta in mano
+    _RANK_ORDER = [1, 3, 10, 9, 8, 7, 6, 5, 4, 2]
+    briscola_suit = briscola.get("suit", "").lower()
+    table_suit  = table.get("suit", "").lower()  if table else None
+    table_rank  = int(table.get("rank", 0))      if table else None
+    for i in range(3):
+        if i >= len(hand) or table is None or table_suit not in _SUITS or not 1 <= (table_rank or 0) <= 10:
+            obs.append(0.0)
+            continue
+        c = hand[i]
+        c_suit = c.get("suit", "").lower()
+        c_rank = int(c.get("rank", 0))
+        p_bris = c_suit == briscola_suit
+        t_bris = table_suit == briscola_suit
+        if p_bris and not t_bris:
+            wins = True
+        elif t_bris and not p_bris:
+            wins = False
+        elif c_suit == table_suit:
+            wins = _RANK_ORDER.index(c_rank) < _RANK_ORDER.index(table_rank)
+        else:
+            wins = False
+        obs.append(1.0 if wins else 0.0)
+
     return obs, None
 
 def _briscola_forward(obs, n_cards=3):
     w = _get_briscola_weights()
     x = obs[:]
-    x = _linear_relu(w["w0"], w["b0"], x, 256, 28)
+    x = _linear_relu(w["w0"], w["b0"], x, 256, 31)
     x = _linear_relu(w["w2"], w["b2"], x, 256, 256)
-    x = _linear_relu(w["w4"], w["b4"], x, 256, 256)
-    q = _linear(w["w6"], w["b6"], x, 3, 256)
+    q = _linear(w["w4"], w["b4"], x, 3, 256)
     legal = list(range(n_cards))
     return max(legal, key=lambda i: q[i])
 
