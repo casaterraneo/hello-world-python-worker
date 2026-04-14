@@ -215,6 +215,9 @@ class Default(WorkerEntrypoint):
 
         # POST /tris/move
         if method == "POST" and path == "/tris/move":
+            key = request.headers.get("x-internal-secret")
+            if key != HARDCODED_SECRET:
+                return _error("Unauthorized", status=401)
             try:
                 body = json.loads(await request.text())
             except Exception:
@@ -230,6 +233,9 @@ class Default(WorkerEntrypoint):
 
         # POST /briscola/encode
         if method == "POST" and path == "/briscola/encode":
+            key = request.headers.get("x-internal-secret")
+            if key != HARDCODED_SECRET:
+                return _error("Unauthorized", status=401)
             try:
                 body = json.loads(await request.text())
             except Exception:
@@ -241,6 +247,9 @@ class Default(WorkerEntrypoint):
 
         # POST /briscola/move
         if method == "POST" and path == "/briscola/move":
+            key = request.headers.get("x-internal-secret")
+            if key != HARDCODED_SECRET:
+                return _error("Unauthorized", status=401)
             try:
                 body = json.loads(await request.text())
             except Exception:

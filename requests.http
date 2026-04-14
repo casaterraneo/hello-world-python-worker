@@ -18,6 +18,7 @@ X-Internal-Secret: wrong-secret
 ### POST /tris/move - Board vuoto (atteso: centro = 4)
 POST https://hello-python.casa-terraneo.workers.dev/tris/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {"board": [0,0,0,0,0,0,0,0,0]}
 
@@ -26,6 +27,7 @@ Content-Type: application/json
 ### POST /tris/move - X ha centro, O deve difendere
 POST https://hello-python.casa-terraneo.workers.dev/tris/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {"board": [0,0,0,0,1,0,0,0,0]}
 
@@ -34,6 +36,7 @@ Content-Type: application/json
 ### POST /tris/move - Board quasi pieno
 POST https://hello-python.casa-terraneo.workers.dev/tris/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {"board": [1,-1,1,-1,1,-1,-1,0,0]}
 
@@ -42,6 +45,7 @@ Content-Type: application/json
 ### POST /tris/move - Validazione: board troppo corto (400)
 POST https://hello-python.casa-terraneo.workers.dev/tris/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {"board": [0,1,0]}
 
@@ -50,14 +54,25 @@ Content-Type: application/json
 ### POST /tris/move - Validazione: valore non valido (400)
 POST https://hello-python.casa-terraneo.workers.dev/tris/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {"board": [0,0,0,0,2,0,0,0,0]}
 
 ###
 
-### POST /briscola/encode - Ottieni i 28 float dell'osservazione
+### POST /tris/move - Auth FAIL (401)
+POST https://hello-python.casa-terraneo.workers.dev/tris/move
+Content-Type: application/json
+X-Internal-Secret: wrong-secret
+
+{"board": [0,0,0,0,0,0,0,0,0]}
+
+###
+
+### POST /briscola/encode - Ottieni i 31 float dell'osservazione
 POST https://hello-python.casa-terraneo.workers.dev/briscola/encode
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {
   "hand": [
@@ -77,6 +92,7 @@ Content-Type: application/json
 ### POST /briscola/move - Mossa AI (board vuoto, agente va per primo)
 POST https://hello-python.casa-terraneo.workers.dev/briscola/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {
   "hand": [
@@ -97,6 +113,7 @@ Content-Type: application/json
 ### POST /briscola/move - C'e' una carta sul tavolo
 POST https://hello-python.casa-terraneo.workers.dev/briscola/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {
   "hand": [
@@ -117,6 +134,7 @@ Content-Type: application/json
 ### POST /briscola/move - Fine partita, solo 1 carta in mano
 POST https://hello-python.casa-terraneo.workers.dev/briscola/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {
   "hand": [
@@ -135,6 +153,7 @@ Content-Type: application/json
 ### POST /briscola/move - Validazione: suit non valida (400)
 POST https://hello-python.casa-terraneo.workers.dev/briscola/move
 Content-Type: application/json
+X-Internal-Secret: test-secret-1234
 
 {
   "hand": [
@@ -145,5 +164,38 @@ Content-Type: application/json
   "deck_left": 30,
   "my_score": 0,
   "opp_score": 0
+}
+
+###
+
+### POST /briscola/encode - Auth FAIL (401)
+POST https://hello-python.casa-terraneo.workers.dev/briscola/encode
+Content-Type: application/json
+X-Internal-Secret: wrong-secret
+
+{
+  "hand": [{"suit": "bastoni", "rank": 1}],
+  "table": null,
+  "briscola": {"suit": "denari", "rank": 10},
+  "deck_left": 30,
+  "my_score": 0,
+  "opp_score": 0
+}
+
+###
+
+### POST /briscola/move - Auth FAIL (401)
+POST https://hello-python.casa-terraneo.workers.dev/briscola/move
+Content-Type: application/json
+X-Internal-Secret: wrong-secret
+
+{
+  "hand": [{"suit": "bastoni", "rank": 1}],
+  "table": null,
+  "briscola": {"suit": "denari", "rank": 10},
+  "deck_left": 30,
+  "my_score": 0,
+  "opp_score": 0,
+  "n_cards": 1
 }
 
