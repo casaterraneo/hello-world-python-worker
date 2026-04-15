@@ -3,5 +3,6 @@ node_modules
 python_modules
 __pycache__
 CLAUDE.md
+export_*_weights.py
 **/uv.lock
 !/uv.lock
