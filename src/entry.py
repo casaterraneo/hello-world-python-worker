@@ -217,6 +217,7 @@ def _briscola_forward(obs, weights, n_cards=3):
 
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
+        global _tris_weights, _BRISCOLA_W, _tris_model_hash, _briscola_model_hash
         path = urlparse(str(request.url)).path
         method = str(request.method)
 
@@ -323,7 +324,6 @@ class Default(WorkerEntrypoint):
             await self.env.KV_BINDING.put(kv_key, to_js(raw))
             await self.env.KV_BINDING.put(f"{kv_key}_meta", json.dumps(metadata))
             # invalida cache in-process per forzare rilettura da KV
-            global _tris_weights, _BRISCOLA_W, _tris_model_hash, _briscola_model_hash
             if model_name == "tris":
                 _tris_weights = None
                 _tris_model_hash = None
