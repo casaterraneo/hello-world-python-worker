@@ -2,7 +2,7 @@ import json
 import base64
 import struct
 from urllib.parse import urlparse
-from pyodide.ffi import to_js
+from pyodide.ffi import to_js, jsnull
 from workers import WorkerEntrypoint, Response
 
 HARDCODED_SECRET = "test-secret-1234"
@@ -57,11 +57,11 @@ async def _get_tris_weights(env):
     if _tris_weights is not None:
         return _tris_weights
     buf = await env.KV_BINDING.get("tris_weights", "arrayBuffer")
-    if buf is None:
+    if buf is None or buf is jsnull:
         raise WeightsNotAvailableError("tris_weights")
     _tris_weights = _parse_weights(bytes(buf.to_py()), _W_NAMES, _W_SHAPES)
     meta_raw = await env.KV_BINDING.get("tris_weights_meta")
-    if meta_raw is not None:
+    if meta_raw is not None and meta_raw is not jsnull:
         try:
             _tris_model_hash = json.loads(meta_raw).get("model_hash")
         except Exception:
@@ -105,11 +105,11 @@ async def _get_briscola_weights(env):
     if _BRISCOLA_W is not None:
         return _BRISCOLA_W
     buf = await env.KV_BINDING.get("briscola_weights", "arrayBuffer")
-    if buf is None:
+    if buf is None or buf is jsnull:
         raise WeightsNotAvailableError("briscola_weights")
     _BRISCOLA_W = _parse_weights(bytes(buf.to_py()), _B_NAMES, _B_SHAPES)
     meta_raw = await env.KV_BINDING.get("briscola_weights_meta")
-    if meta_raw is not None:
+    if meta_raw is not None and meta_raw is not jsnull:
         try:
             _briscola_model_hash = json.loads(meta_raw).get("model_hash")
         except Exception:
@@ -341,7 +341,7 @@ class Default(WorkerEntrypoint):
             result = {}
             for model_name, kv_key in (("tris", "tris_weights"), ("briscola", "briscola_weights")):
                 meta_raw = await self.env.KV_BINDING.get(f"{kv_key}_meta")
-                if meta_raw is None:
+                if meta_raw is None or meta_raw is jsnull:
                     result[model_name] = {"loaded": False}
                 else:
                     try:
