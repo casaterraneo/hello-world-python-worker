@@ -225,7 +225,7 @@ POST http://localhost:8787/admin/upload-weights
 Content-Type: application/octet-stream
 X-Internal-Secret: test-secret-1234
 X-Model-Name: tris
-X-Model-Hash: INSERISCI_HASH_QUI
+X-Model-Hash: 80e1805
 
 < ./tris_weights.bin
 
@@ -236,7 +236,7 @@ POST http://localhost:8787/admin/upload-weights
 Content-Type: application/octet-stream
 X-Internal-Secret: test-secret-1234
 X-Model-Name: briscola
-X-Model-Hash: INSERISCI_HASH_QUI
+X-Model-Hash: 0f4a93c
 
 < ./briscola_weights.bin
 
@@ -247,7 +247,7 @@ POST https://hello-python.casa-terraneo.workers.dev/admin/upload-weights
 Content-Type: application/octet-stream
 X-Internal-Secret: test-secret-1234
 X-Model-Name: tris
-X-Model-Hash: INSERISCI_HASH_QUI
+X-Model-Hash: 80e1805
 
 < ./tris_weights.bin
 
@@ -258,7 +258,7 @@ POST https://hello-python.casa-terraneo.workers.dev/admin/upload-weights
 Content-Type: application/octet-stream
 X-Internal-Secret: test-secret-1234
 X-Model-Name: briscola
-X-Model-Hash: INSERISCI_HASH_QUI
+X-Model-Hash: 0f4a93c
 
 < ./briscola_weights.bin
 
