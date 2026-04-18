@@ -199,3 +199,67 @@ X-Internal-Secret: wrong-secret
   "n_cards": 1
 }
 
+###
+
+# =============================================================================
+# ADMIN — Upload pesi su KV
+# Prima di usare questi endpoint genera i file .bin con:
+#   python export_weights_bin.py
+# =============================================================================
+
+### GET /weights/info [LOCAL] — stato pesi su KV
+GET http://localhost:8787/weights/info
+X-Internal-Secret: test-secret-1234
+
+###
+
+### GET /weights/info [PROD] — stato pesi su KV
+GET https://hello-python.casa-terraneo.workers.dev/weights/info
+X-Internal-Secret: test-secret-1234
+
+###
+
+### POST /admin/upload-weights — Upload pesi TRIS [LOCAL]
+# Genera prima: python export_weights_bin.py
+POST http://localhost:8787/admin/upload-weights
+Content-Type: application/octet-stream
+X-Internal-Secret: test-secret-1234
+X-Model-Name: tris
+X-Model-Hash: INSERISCI_HASH_QUI
+
+< ./tris_weights.bin
+
+###
+
+### POST /admin/upload-weights — Upload pesi BRISCOLA [LOCAL]
+POST http://localhost:8787/admin/upload-weights
+Content-Type: application/octet-stream
+X-Internal-Secret: test-secret-1234
+X-Model-Name: briscola
+X-Model-Hash: INSERISCI_HASH_QUI
+
+< ./briscola_weights.bin
+
+###
+
+### POST /admin/upload-weights — Upload pesi TRIS [PROD]
+POST https://hello-python.casa-terraneo.workers.dev/admin/upload-weights
+Content-Type: application/octet-stream
+X-Internal-Secret: test-secret-1234
+X-Model-Name: tris
+X-Model-Hash: INSERISCI_HASH_QUI
+
+< ./tris_weights.bin
+
+###
+
+### POST /admin/upload-weights — Upload pesi BRISCOLA [PROD]
+POST https://hello-python.casa-terraneo.workers.dev/admin/upload-weights
+Content-Type: application/octet-stream
+X-Internal-Secret: test-secret-1234
+X-Model-Name: briscola
+X-Model-Hash: INSERISCI_HASH_QUI
+
+< ./briscola_weights.bin
+
+###
